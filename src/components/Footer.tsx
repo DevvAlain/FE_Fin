@@ -122,15 +122,15 @@ const Footer: React.FC = () => {
               <div className="space-y-3 text-sm">
                 <div className="flex items-center space-x-3 text-gray-400">
                   <Mail className="h-4 w-4" />
-                  <span>support@finwise.vn</span>
+                  <span>vuthanhduc181203@gmail.com</span>
                 </div>
                 <div className="flex items-center space-x-3 text-gray-400">
                   <Phone className="h-4 w-4" />
-                  <span>1900 9999 (miễn phí)</span>
+                  <span>0393261459</span>
                 </div>
                 <div className="flex items-center space-x-3 text-gray-400">
                   <MapPin className="h-4 w-4" />
-                  <span>Tầng 10, Toà nhà ABC, Q1, TP.HCM</span>
+                  <span>Toà nhà Burj Khalifa tại Dubai</span>
                 </div>
               </div>
             </motion.div>
