@@ -10,8 +10,8 @@ export default defineConfig({
         manualChunks: undefined,
       },
     },
-    assetsDir: 'assets',
+    assetsDir: "assets",
     sourcemap: false,
   },
-  base: './',
+  base: "./",
 });
