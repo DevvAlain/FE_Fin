@@ -3,9 +3,28 @@
   publish = "dist"
   command = "npm run build"
 
+[build.environment]
+  NODE_VERSION = "18"
+
+# Edge function to force correct MIME types
+[[edge_functions]]
+  function = "set-headers"
+  path = "/styles/*"
+
+[[edge_functions]]
+  function = "set-headers"
+  path = "/static/*"
+
 # Force serve CSS with correct MIME type
 [[headers]]
   for = "*.css"
+  [headers.values]
+    Content-Type = "text/css; charset=utf-8"
+    Cache-Control = "public, max-age=31536000"
+
+# Force serve CSS in styles folder
+[[headers]]
+  for = "/styles/*.css"
   [headers.values]
     Content-Type = "text/css; charset=utf-8"
     Cache-Control = "public, max-age=31536000"

@@ -9,15 +9,15 @@ export default defineConfig({
       output: {
         manualChunks: undefined,
         assetFileNames: (assetInfo) => {
-          if (assetInfo.name && assetInfo.name.endsWith('.css')) {
-            return 'assets/[name]-[hash].css';
+          if (assetInfo.name && assetInfo.name.endsWith(".css")) {
+            return "styles/[name]-[hash].css";
           }
-          return 'assets/[name]-[hash][extname]';
+          return "assets/[name]-[hash][extname]";
         },
       },
     },
-    assetsDir: "assets",
+    assetsDir: "static",
     sourcemap: false,
   },
-  base: "./",
+  base: "/",
 });
