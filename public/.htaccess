@@ -1,0 +1,29 @@
+<IfModule mod_mime.c>
+    AddType text/css .css
+    AddType application/javascript .js
+    AddType application/javascript .mjs
+</IfModule>
+
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresByType text/css "access plus 1 year"
+    ExpiresByType application/javascript "access plus 1 year"
+</IfModule>
+
+<IfModule mod_headers.c>
+    Header set X-Content-Type-Options nosniff
+    Header set X-Frame-Options DENY
+    Header set X-XSS-Protection "1; mode=block"
+    
+    <FilesMatch "\.css$">
+        Header set Content-Type "text/css; charset=utf-8"
+    </FilesMatch>
+    
+    <FilesMatch "\.js$">
+        Header set Content-Type "application/javascript; charset=utf-8"
+    </FilesMatch>
+    
+    <FilesMatch "\.mjs$">
+        Header set Content-Type "application/javascript; charset=utf-8"
+    </FilesMatch>
+</IfModule>

@@ -8,6 +8,12 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks: undefined,
+        assetFileNames: (assetInfo) => {
+          if (assetInfo.name && assetInfo.name.endsWith('.css')) {
+            return 'assets/[name]-[hash].css';
+          }
+          return 'assets/[name]-[hash][extname]';
+        },
       },
     },
     assetsDir: "assets",
