@@ -1,4 +1,7 @@
-export default async (request: Request, context: { next: () => Promise<Response> }) => {
+export default async (
+  request: Request,
+  context: { next: () => Promise<Response> }
+) => {
   const response = await context.next();
   const url = new URL(request.url);
 
