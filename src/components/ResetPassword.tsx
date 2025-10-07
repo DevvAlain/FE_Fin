@@ -1,17 +1,12 @@
 import React, { useState } from 'react';
-import { useParams } from 'react-router-dom';
 import { Eye, EyeOff, Lock, CheckCircle, XCircle, Loader2 } from 'lucide-react';
 import authService from '../services/authService';
 
 interface ResetPasswordProps {
-  token?: string; // Make it optional in case used without router
+  token: string; // Required token prop
 }
 
-const ResetPassword: React.FC<ResetPasswordProps> = ({ token: propToken }) => {
-  // Try to get token from props first, then from URL params
-  const { token: paramToken } = useParams<{ token: string }>();
-  const token = propToken || paramToken;
-  
+const ResetPassword: React.FC<ResetPasswordProps> = ({ token }) => {
   const [formData, setFormData] = useState({
     newPassword: '',
     confirmPassword: ''

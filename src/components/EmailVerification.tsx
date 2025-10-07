@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, useSearchParams } from 'react-router-dom';
 import { CheckCircle, XCircle, Mail, Loader2 } from 'lucide-react';
 import authService from '../services/authService';
 
-const EmailVerification: React.FC = () => {
-  const { token } = useParams<{ token: string }>();
-  const [searchParams] = useSearchParams();
-  const returnUrl = searchParams.get('returnUrl');
+interface EmailVerificationProps {
+  token?: string;
+  returnUrl?: string;
+}
+
+const EmailVerification: React.FC<EmailVerificationProps> = ({ token, returnUrl }) => {
   
   const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
   const [message, setMessage] = useState('');

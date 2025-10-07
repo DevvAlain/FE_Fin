@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { Menu, X, Wallet, User, LogOut } from "lucide-react";
+import { Menu, X, Wallet, User, LogOut, Settings } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import AuthModal from './AuthModal';
+import ChangePassword from './ChangePassword';
 import authService, { type User as UserType } from '../services/authService';
 
 const Header: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
-  const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
+  const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false);
   const [user, setUser] = useState<UserType | null>(null);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
 
@@ -28,28 +27,15 @@ const Header: React.FC = () => {
     checkAuth();
   }, []);
 
-  const handleLogin = () => {
-    setAuthMode('login');
-    setIsAuthModalOpen(true);
-  };
-
-  const handleRegister = () => {
-    setAuthMode('register');
-    setIsAuthModalOpen(true);
-  };
-
   const handleLogout = () => {
     authService.logout();
     setUser(null);
     setIsUserMenuOpen(false);
   };
 
-  const handleAuthSuccess = () => {
-    const checkUser = async () => {
-      const currentUser = await authService.getCurrentUser();
-      setUser(currentUser);
-    };
-    checkUser();
+  const handleChangePasswordSuccess = () => {
+    // Optional: Show success message or refresh user data
+    console.log('Password changed successfully');
   };
 
   return (
@@ -108,6 +94,15 @@ const Header: React.FC = () => {
                         <p className="text-xs text-gray-500">{user.email}</p>
                       </div>
                       <button
+                        onClick={() => {
+                          setIsChangePasswordOpen(true);
+                          setIsUserMenuOpen(false);
+                        }}
+                        className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center space-x-2">
+                        <Settings className="w-4 h-4" />
+                        <span>Đổi mật khẩu</span>
+                      </button>
+                      <button
                         onClick={handleLogout}
                         className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center space-x-2">
                         <LogOut className="w-4 h-4" />
@@ -120,16 +115,16 @@ const Header: React.FC = () => {
             ) : (
               <>
                 <button 
-                  onClick={handleLogin}
-                  className="text-gray-600 hover:text-gray-900 font-medium">
-                  Đăng nhập
+                  className="text-gray-600 hover:text-gray-900 font-medium"
+                  disabled>
+                  Đăng nhập qua App
                 </button>
                 <motion.button
-                  onClick={handleRegister}
                   className="bg-blue-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors"
                   whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}>
-                  Dùng thử miễn phí
+                  whileTap={{ scale: 0.95 }}
+                  disabled>
+                  Tải App
                 </motion.button>
               </>
             )}
@@ -171,6 +166,15 @@ const Header: React.FC = () => {
                       {user.fullName} • {user.email}
                     </div>
                     <button 
+                      onClick={() => {
+                        setIsChangePasswordOpen(true);
+                        setIsMenuOpen(false);
+                      }}
+                      className="text-gray-600 hover:text-gray-900 font-medium text-left flex items-center space-x-2">
+                      <Settings className="w-4 h-4" />
+                      <span>Đổi mật khẩu</span>
+                    </button>
+                    <button 
                       onClick={handleLogout}
                       className="text-red-600 hover:text-red-800 font-medium text-left flex items-center space-x-2">
                       <LogOut className="w-4 h-4" />
@@ -180,14 +184,14 @@ const Header: React.FC = () => {
                 ) : (
                   <>
                     <button 
-                      onClick={handleLogin}
-                      className="text-gray-600 hover:text-gray-900 font-medium text-left">
-                      Đăng nhập
+                      className="text-gray-600 hover:text-gray-900 font-medium text-left"
+                      disabled>
+                      Đăng nhập qua App
                     </button>
                     <button 
-                      onClick={handleRegister}
-                      className="bg-blue-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors text-left">
-                      Dùng thử miễn phí
+                      className="bg-blue-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors text-left"
+                      disabled>
+                      Tải App
                     </button>
                   </>
                 )}
@@ -197,12 +201,11 @@ const Header: React.FC = () => {
         )}
       </div>
 
-      {/* Auth Modal */}
-      <AuthModal
-        isOpen={isAuthModalOpen}
-        onClose={() => setIsAuthModalOpen(false)}
-        initialMode={authMode}
-        onSuccess={handleAuthSuccess}
+      {/* Change Password Modal */}
+      <ChangePassword
+        isOpen={isChangePasswordOpen}
+        onClose={() => setIsChangePasswordOpen(false)}
+        onSuccess={handleChangePasswordSuccess}
       />
     </motion.header>
   );
