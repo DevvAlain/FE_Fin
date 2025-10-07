@@ -39,30 +39,32 @@ const ChangePassword: React.FC<ChangePasswordProps> = ({
     setLoading(true);
     setMessage("");
 
+    // Trim inputs
+    const oldPassTrim = String(formData.oldPassword || "").trim();
+    const newPassTrim = String(formData.newPassword || "").trim();
+    const confirmTrim = String(formData.confirmPassword || "").trim();
+
     // Validate passwords
-    if (formData.newPassword !== formData.confirmPassword) {
+    if (newPassTrim !== confirmTrim) {
       setMessage("Mật khẩu mới và xác nhận mật khẩu không khớp");
       setLoading(false);
       return;
     }
 
-    if (formData.newPassword.length < 6) {
+    if (newPassTrim.length < 6) {
       setMessage("Mật khẩu mới phải có ít nhất 6 ký tự");
       setLoading(false);
       return;
     }
 
-    if (formData.oldPassword === formData.newPassword) {
+    if (oldPassTrim === newPassTrim) {
       setMessage("Mật khẩu mới không được trùng với mật khẩu cũ");
       setLoading(false);
       return;
     }
 
     try {
-      const result = await authService.changePassword(
-        formData.oldPassword,
-        formData.newPassword
-      );
+      const result = await authService.changePassword(oldPassTrim, newPassTrim);
 
       if (result.success) {
         setStatus("success");
