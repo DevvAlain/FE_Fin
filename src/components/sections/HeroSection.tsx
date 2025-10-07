@@ -1,27 +1,8 @@
-import React, { useState } from "react";
+import React from "react";
 import { motion } from "framer-motion";
 import { ArrowRight, Play, Star } from "lucide-react";
-import AuthModal from '../AuthModal';
-import authService from '../../services/authService';
 
 const HeroSection: React.FC = () => {
-  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
-  const [authMode, setAuthMode] = useState<'login' | 'register'>('register');
-
-  const handleGetStarted = () => {
-    if (authService.isAuthenticated()) {
-      // Redirect to dashboard or app
-      window.location.href = '/dashboard';
-    } else {
-      setAuthMode('register');
-      setIsAuthModalOpen(true);
-    }
-  };
-
-  const handleAuthSuccess = () => {
-    // Redirect to dashboard after successful auth
-    window.location.href = '/dashboard';
-  };
   return (
     <section className="pt-20 pb-16 bg-gradient-to-br from-blue-50 via-white to-yellow-50 overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -61,11 +42,10 @@ const HeroSection: React.FC = () => {
               {/* CTA Buttons */}
               <div className="flex flex-col sm:flex-row gap-4 mb-8">
                 <motion.button
-                  onClick={handleGetStarted}
                   className="bg-blue-600 text-white px-8 py-4 rounded-xl font-semibold text-lg flex items-center justify-center hover:bg-blue-700 transition-all duration-200 shadow-lg hover:shadow-xl"
                   whileHover={{ scale: 1.05, y: -2 }}
                   whileTap={{ scale: 0.95 }}>
-                  Bắt đầu miễn phí
+                  Tải App FinWise
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </motion.button>
 
@@ -181,14 +161,6 @@ const HeroSection: React.FC = () => {
           </div>
         </div>
       </div>
-
-      {/* Auth Modal */}
-      <AuthModal
-        isOpen={isAuthModalOpen}
-        onClose={() => setIsAuthModalOpen(false)}
-        initialMode={authMode}
-        onSuccess={handleAuthSuccess}
-      />
     </section>
   );
 };

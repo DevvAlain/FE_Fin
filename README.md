@@ -14,6 +14,7 @@ Landing page cho FinWise - Hệ thống Quản lý Chi tiêu Cá nhân qua AI v�
 ## ✨ Tính năng
 
 ### Landing Page
+
 - Header với navigation responsive
 - Hero section với gradient design
 - Features showcase với hover animations
@@ -23,6 +24,7 @@ Landing page cho FinWise - Hệ thống Quản lý Chi tiêu Cá nhân qua AI v�
 - Footer với newsletter signup
 
 ### Authentication System
+
 - **Đăng ký tài khoản** với email verification
 - **Đăng nhập** với email/password
 - **Quên mật khẩu** với email reset link
@@ -130,31 +132,35 @@ POST /api/auth/change-password              # Đổi mật khẩu (cần auth)
 ## 🔐 Authentication Flow
 
 ### 1. Đăng ký tài khoản
+
 ```typescript
 const result = await authService.register({
-  email: 'user@example.com',
-  password: 'password123',
-  fullName: 'Nguyễn Văn A',
-  phone: '0123456789'
+  email: "user@example.com",
+  password: "password123",
+  fullName: "Nguyễn Văn A",
+  phone: "0123456789",
 });
 ```
 
 ### 2. Xác thực email
+
 - User nhận email với link xác thực
 - Click link → `/verify-email/:token`
 - Component `EmailVerification` xử lý xác thực
 
 ### 3. Đăng nhập
+
 ```typescript
 const result = await authService.login({
-  email: 'user@example.com',
-  password: 'password123'
+  email: "user@example.com",
+  password: "password123",
 });
 ```
 
 ### 4. Quên mật khẩu
+
 ```typescript
-const result = await authService.forgotPassword('user@example.com');
+const result = await authService.forgotPassword("user@example.com");
 // User nhận email với link reset
 // Click link → `/reset-password/:token`
 ```
@@ -162,7 +168,9 @@ const result = await authService.forgotPassword('user@example.com');
 ## 🎨 UI Components
 
 ### AuthModal
+
 Modal đa chức năng với 3 modes:
+
 - **Login**: Form đăng nhập
 - **Register**: Form đăng ký với validation
 - **Forgot**: Form quên mật khẩu
@@ -172,18 +180,22 @@ Modal đa chức năng với 3 modes:
   isOpen={isModalOpen}
   onClose={() => setIsModalOpen(false)}
   initialMode="login"
-  onSuccess={() => console.log('Auth success!')}
+  onSuccess={() => console.log("Auth success!")}
 />
 ```
 
 ### EmailVerification
+
 Trang xác thực email với UI states:
+
 - **Loading**: Đang xác thực
 - **Success**: Xác thực thành công + auto redirect
 - **Error**: Xác thực thất bại + option resend
 
 ### ResetPassword
+
 Form đặt lại mật khẩu với:
+
 - Password strength validation
 - Confirm password matching
 - Token validation
@@ -192,22 +204,25 @@ Form đặt lại mật khẩu với:
 ## 🔄 State Management
 
 ### AuthService
+
 Centralized authentication service:
+
 ```typescript
 // Check if user is authenticated
-authService.isAuthenticated()
+authService.isAuthenticated();
 
 // Get current user info
-const user = await authService.getCurrentUser()
+const user = await authService.getCurrentUser();
 
 // Logout
-authService.logout()
+authService.logout();
 
 // Auto token refresh
 // Automatically handles expired tokens
 ```
 
 ### Local Storage
+
 - `accessToken`: JWT access token
 - `refreshToken`: JWT refresh token
 - Auto-cleanup on logout
@@ -215,12 +230,14 @@ authService.logout()
 ## 🚀 Deployment
 
 ### Netlify (Đã cấu hình)
+
 ```bash
 # Build và deploy tự động khi push to master
 git push origin master
 ```
 
 ### Manual Deploy
+
 ```bash
 # Build project
 npm run build
@@ -231,9 +248,11 @@ npm run build
 ## 🧪 Testing Authentication
 
 ### 1. Chạy Backend
+
 Đảm bảo backend đang chạy tại `http://localhost:3000`
 
 ### 2. Test Flow
+
 1. Mở landing page
 2. Click "Dùng thử miễn phí" → Modal đăng ký
 3. Đăng ký tài khoản → Nhận email xác thực
@@ -246,7 +265,7 @@ npm run build
 - **JWT Authentication** với access/refresh tokens
 - **Email Verification** bắt buộc
 - **Password Hashing** trên backend
-- **CORS Protection** 
+- **CORS Protection**
 - **Input Validation** và sanitization
 - **Auto Token Refresh** khi expired
 - **Secure Password Reset** với time-limited tokens
@@ -262,7 +281,7 @@ npm run build
 
 1. **Google OAuth Integration**
 2. **User Dashboard** sau khi đăng nhập
-3. **Profile Management** 
+3. **Profile Management**
 4. **Two-Factor Authentication**
 5. **Social Login** (Facebook, GitHub)
 6. **Progressive Web App** features
@@ -275,15 +294,16 @@ Nếu gặp vấn đề với authentication:
 2. Verify backend endpoints
 3. Check environment variables
 4. Test với Postman/curl
-│   └── vite-env.d.ts
-├── index.html
-├── package.json
-├── tailwind.config.js
-├── postcss.config.js
-├── tsconfig.json
-├── tsconfig.node.json
-└── vite.config.ts
-```
+   │ └── vite-env.d.ts
+   ├── index.html
+   ├── package.json
+   ├── tailwind.config.js
+   ├── postcss.config.js
+   ├── tsconfig.json
+   ├── tsconfig.node.json
+   └── vite.config.ts
+
+````
 
 ## 🎨 Tailwind CSS
 
@@ -293,7 +313,7 @@ Ví dụ:
 
 ```tsx
 <div className="bg-blue-500 text-white p-4 rounded-lg">Hello Tailwind!</div>
-```
+````
 
 ```js
 export default defineConfig([

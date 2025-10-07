@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { Menu, X, Wallet, User, LogOut } from "lucide-react";
+import { Menu, X, Wallet, User, LogOut, Settings } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import AuthModal from './AuthModal';
-import authService, { type User as UserType } from '../services/authService';
+import ChangePassword from "./ChangePassword";
+import authService, { type User as UserType } from "../services/authService";
 
 const Header: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
-  const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
+  const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false);
   const [user, setUser] = useState<UserType | null>(null);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
 
@@ -28,28 +27,15 @@ const Header: React.FC = () => {
     checkAuth();
   }, []);
 
-  const handleLogin = () => {
-    setAuthMode('login');
-    setIsAuthModalOpen(true);
-  };
-
-  const handleRegister = () => {
-    setAuthMode('register');
-    setIsAuthModalOpen(true);
-  };
-
   const handleLogout = () => {
     authService.logout();
     setUser(null);
     setIsUserMenuOpen(false);
   };
 
-  const handleAuthSuccess = () => {
-    const checkUser = async () => {
-      const currentUser = await authService.getCurrentUser();
-      setUser(currentUser);
-    };
-    checkUser();
+  const handleChangePasswordSuccess = () => {
+    // Optional: Show success message or refresh user data
+    console.log("Password changed successfully");
   };
 
   return (
@@ -92,7 +78,9 @@ const Header: React.FC = () => {
                   <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
                     <User className="w-4 h-4 text-white" />
                   </div>
-                  <span className="text-gray-700 font-medium">{user.fullName}</span>
+                  <span className="text-gray-700 font-medium">
+                    {user.fullName}
+                  </span>
                 </button>
 
                 {/* User Dropdown Menu */}
@@ -104,9 +92,20 @@ const Header: React.FC = () => {
                       exit={{ opacity: 0, y: 10 }}
                       className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
                       <div className="px-4 py-2 border-b border-gray-200">
-                        <p className="text-sm font-medium text-gray-900">{user.fullName}</p>
+                        <p className="text-sm font-medium text-gray-900">
+                          {user.fullName}
+                        </p>
                         <p className="text-xs text-gray-500">{user.email}</p>
                       </div>
+                      <button
+                        onClick={() => {
+                          setIsChangePasswordOpen(true);
+                          setIsUserMenuOpen(false);
+                        }}
+                        className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center space-x-2">
+                        <Settings className="w-4 h-4" />
+                        <span>Đổi mật khẩu</span>
+                      </button>
                       <button
                         onClick={handleLogout}
                         className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center space-x-2">
@@ -119,17 +118,17 @@ const Header: React.FC = () => {
               </div>
             ) : (
               <>
-                <button 
-                  onClick={handleLogin}
-                  className="text-gray-600 hover:text-gray-900 font-medium">
-                  Đăng nhập
+                <button
+                  className="text-gray-600 hover:text-gray-900 font-medium"
+                  disabled>
+                  Đăng nhập qua App
                 </button>
                 <motion.button
-                  onClick={handleRegister}
                   className="bg-blue-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors"
                   whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}>
-                  Dùng thử miễn phí
+                  whileTap={{ scale: 0.95 }}
+                  disabled>
+                  Tải App
                 </motion.button>
               </>
             )}
@@ -170,7 +169,16 @@ const Header: React.FC = () => {
                     <div className="px-2 py-1 text-sm text-gray-500">
                       {user.fullName} • {user.email}
                     </div>
-                    <button 
+                    <button
+                      onClick={() => {
+                        setIsChangePasswordOpen(true);
+                        setIsMenuOpen(false);
+                      }}
+                      className="text-gray-600 hover:text-gray-900 font-medium text-left flex items-center space-x-2">
+                      <Settings className="w-4 h-4" />
+                      <span>Đổi mật khẩu</span>
+                    </button>
+                    <button
                       onClick={handleLogout}
                       className="text-red-600 hover:text-red-800 font-medium text-left flex items-center space-x-2">
                       <LogOut className="w-4 h-4" />
@@ -179,15 +187,15 @@ const Header: React.FC = () => {
                   </div>
                 ) : (
                   <>
-                    <button 
-                      onClick={handleLogin}
-                      className="text-gray-600 hover:text-gray-900 font-medium text-left">
-                      Đăng nhập
+                    <button
+                      className="text-gray-600 hover:text-gray-900 font-medium text-left"
+                      disabled>
+                      Đăng nhập qua App
                     </button>
-                    <button 
-                      onClick={handleRegister}
-                      className="bg-blue-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors text-left">
-                      Dùng thử miễn phí
+                    <button
+                      className="bg-blue-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors text-left"
+                      disabled>
+                      Tải App
                     </button>
                   </>
                 )}
@@ -197,12 +205,11 @@ const Header: React.FC = () => {
         )}
       </div>
 
-      {/* Auth Modal */}
-      <AuthModal
-        isOpen={isAuthModalOpen}
-        onClose={() => setIsAuthModalOpen(false)}
-        initialMode={authMode}
-        onSuccess={handleAuthSuccess}
+      {/* Change Password Modal */}
+      <ChangePassword
+        isOpen={isChangePasswordOpen}
+        onClose={() => setIsChangePasswordOpen(false)}
+        onSuccess={handleChangePasswordSuccess}
       />
     </motion.header>
   );
