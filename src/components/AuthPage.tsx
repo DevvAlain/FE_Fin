@@ -1,19 +1,19 @@
-import React from 'react';
-import EmailVerification from './EmailVerification';
-import ResetPassword from './ResetPassword';
+import React from "react";
+import EmailVerification from "./EmailVerification";
+import ResetPassword from "./ResetPassword";
 
 interface AuthPageProps {
-  type: 'verify-email' | 'reset-password';
+  type: "verify-email" | "reset-password";
   token: string;
   returnUrl?: string;
 }
 
 const AuthPage: React.FC<AuthPageProps> = ({ type, token, returnUrl }) => {
-  if (type === 'verify-email') {
+  if (type === "verify-email") {
     return <EmailVerification token={token} returnUrl={returnUrl} />;
   }
-  
-  if (type === 'reset-password') {
+
+  if (type === "reset-password") {
     return <ResetPassword token={token} />;
   }
 
@@ -27,9 +27,8 @@ const AuthPage: React.FC<AuthPageProps> = ({ type, token, returnUrl }) => {
           Liên kết bạn truy cập không hợp lệ.
         </p>
         <button
-          onClick={() => window.location.href = '/'}
-          className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors"
-        >
+          onClick={() => (window.location.href = "/")}
+          className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
           Về trang chủ
         </button>
       </div>

@@ -1,6 +1,6 @@
 import React from "react";
 import { motion } from "framer-motion";
-import { ArrowRight, Play, Star, Download } from "lucide-react";
+import { ArrowRight, Play, Star } from "lucide-react";
 
 const HeroSection: React.FC = () => {
   return (

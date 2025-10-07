@@ -1,6 +1,6 @@
-import React, { createContext, useState, useEffect } from 'react';
-import type { ReactNode } from 'react';
-import authService, { type User } from '../services/authService';
+import React, { createContext, useState, useEffect } from "react";
+import type { ReactNode } from "react";
+import authService, { type User } from "../services/authService";
 
 interface AuthContextType {
   user: User | null;
@@ -28,27 +28,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         setUser(currentUser);
       }
     } catch (error) {
-      console.error('Auth check failed:', error);
+      console.error("Auth check failed:", error);
       authService.logout();
       setUser(null);
     } finally {
       setIsLoading(false);
-    }
-  };
-
-  const login = async (email: string, password: string): Promise<boolean> => {
-    try {
-      const result = await authService.login({ email, password });
-      
-      if (result.success && result.user) {
-        setUser(result.user);
-        return true;
-      }
-      
-      return false;
-    } catch (error) {
-      console.error('Login failed:', error);
-      return false;
     }
   };
 
@@ -59,7 +43,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         setUser(currentUser);
       }
     } catch (error) {
-      console.error('Refresh user failed:', error);
+      console.error("Refresh user failed:", error);
     }
   };
 
@@ -78,14 +62,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     isLoading,
     logout,
     checkAuth,
-    refreshUser
+    refreshUser,
   };
 
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
 export default AuthContext;
