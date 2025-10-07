@@ -1,12 +1,31 @@
 import LandingPage from "./components/LandingPage";
-// import TestTailwind from "./components/TestTailwind";
+import AuthPage from "./components/AuthPage";
 
 function App() {
-  // Tailwind CSS working with Vite plugin!
-  return <LandingPage />;
+  // Simple client-side path handling so token links work (Netlify serves index.html)
+  const path = typeof window !== "undefined" ? window.location.pathname : "/";
 
-  // Test component (for debugging Tailwind)
-  // return <TestTailwind />;
+  // Match /reset-password/:token
+  const resetMatch = path.match(/^\/reset-password\/(.+)$/);
+  if (resetMatch) {
+    const token = decodeURIComponent(resetMatch[1]);
+    return <AuthPage type="reset-password" token={token} />;
+  }
+
+  // Match /verify-email/:token
+  const verifyMatch = path.match(/^\/verify-email\/(.+)$/);
+  if (verifyMatch) {
+    const token = decodeURIComponent(verifyMatch[1]);
+    // returnUrl can be provided as search param, parse it
+    const params = new URLSearchParams(
+      typeof window !== "undefined" ? window.location.search : ""
+    );
+    const returnUrl = params.get("returnUrl") || undefined;
+    return <AuthPage type="verify-email" token={token} returnUrl={returnUrl} />;
+  }
+
+  // Default: render landing page
+  return <LandingPage />;
 }
 
 export default App;
