@@ -22,14 +22,18 @@ const ResetPassword: React.FC<ResetPasswordProps> = ({ token }) => {
     setLoading(true);
     setMessage("");
 
+    // Trim inputs to avoid accidental whitespace
+    const newPasswordTrim = String(formData.newPassword || "").trim();
+    const confirmTrim = String(formData.confirmPassword || "").trim();
+
     // Validate passwords
-    if (formData.newPassword !== formData.confirmPassword) {
+    if (newPasswordTrim !== confirmTrim) {
       setMessage("Mật khẩu xác nhận không khớp");
       setLoading(false);
       return;
     }
 
-    if (formData.newPassword.length < 6) {
+    if (newPasswordTrim.length < 6) {
       setMessage("Mật khẩu phải có ít nhất 6 ký tự");
       setLoading(false);
       return;
@@ -43,10 +47,7 @@ const ResetPassword: React.FC<ResetPasswordProps> = ({ token }) => {
     }
 
     try {
-      const result = await authService.resetPassword(
-        token,
-        formData.newPassword
-      );
+      const result = await authService.resetPassword(token, newPasswordTrim);
 
       if (result.success) {
         setStatus("success");
