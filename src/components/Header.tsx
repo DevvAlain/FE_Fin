@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Menu, X, User, LogOut, Settings } from "lucide-react";
 // Import site logo image
-import siteLogo from "../assets/logo 2.jpg";
+import siteLogo from "../assets/logo.png";
 import { motion, AnimatePresence } from "framer-motion";
 import ChangePassword from "./ChangePassword";
 import authService, { type User as UserType } from "../services/authService";
