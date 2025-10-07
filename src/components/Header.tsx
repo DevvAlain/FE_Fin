@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { Menu, X, Wallet, User, LogOut, Settings } from "lucide-react";
+import { Menu, X, User, LogOut, Settings } from "lucide-react";
+// Import site logo image
+import siteLogo from "../assets/logo 2.jpg";
 import { motion, AnimatePresence } from "framer-motion";
 import ChangePassword from "./ChangePassword";
 import authService, { type User as UserType } from "../services/authService";
@@ -47,14 +49,17 @@ const Header: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
-          <motion.div
-            className="flex items-center space-x-2"
-            whileHover={{ scale: 1.05 }}>
-            <div className="bg-blue-600 p-2 rounded-lg">
-              <Wallet className="h-6 w-6 text-white" />
-            </div>
+          <motion.a
+            href="/"
+            className="flex items-center space-x-3"
+            whileHover={{ scale: 1.03 }}>
+            <img
+              src={siteLogo}
+              alt="FinWise logo"
+              className="h-10 w-10 object-cover rounded-md"
+            />
             <span className="text-xl font-bold text-gray-900">FinWise</span>
-          </motion.div>
+          </motion.a>
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-8">
