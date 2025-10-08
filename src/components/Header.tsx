@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { Menu, X, User, LogOut, Settings } from "lucide-react";
-// Import site logo image
 import siteLogo from "../assets/logo.png";
 import { motion, AnimatePresence } from "framer-motion";
 import ChangePassword from "./ChangePassword";
@@ -8,9 +7,9 @@ import authService, { type User as UserType } from "../services/authService";
 
 const Header: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false);
   const [user, setUser] = useState<UserType | null>(null);
-  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
 
   const navItems = [
     { name: "Tính năng", href: "#features" },
@@ -20,24 +19,19 @@ const Header: React.FC = () => {
   ];
 
   useEffect(() => {
-    const checkAuth = async () => {
+    const check = async () => {
       if (authService.isAuthenticated()) {
-        const currentUser = await authService.getCurrentUser();
-        setUser(currentUser);
+        const cur = await authService.getCurrentUser();
+        setUser(cur);
       }
     };
-    checkAuth();
+    check();
   }, []);
 
   const handleLogout = () => {
     authService.logout();
     setUser(null);
     setIsUserMenuOpen(false);
-  };
-
-  const handleChangePasswordSuccess = () => {
-    // Optional: Show success message or refresh user data
-    console.log("Password changed successfully");
   };
 
   return (
@@ -48,32 +42,26 @@ const Header: React.FC = () => {
       transition={{ duration: 0.6 }}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
-          {/* Logo */}
-          <motion.a
-            href="/"
-            className="flex items-center space-x-3"
-            whileHover={{ scale: 1.03 }}>
+          <a href="/" className="flex items-center space-x-3">
             <img
               src={siteLogo}
-              alt="FinWise logo"
-              className="h-10 w-10 object-cover rounded-md"
+              alt="FinWise"
+              className="h-10 w-10 rounded-md object-cover"
             />
             <span className="text-xl font-bold text-gray-900">FinWise</span>
-          </motion.a>
+          </a>
 
-          {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-8">
-            {navItems.map((item) => (
+            {navItems.map((n) => (
               <a
-                key={item.name}
-                href={item.href}
+                key={n.name}
+                href={n.href}
                 className="text-gray-600 hover:text-blue-600 transition-colors duration-200 font-medium">
-                {item.name}
+                {n.name}
               </a>
             ))}
           </nav>
 
-          {/* CTA Button */}
           <div className="hidden md:flex items-center space-x-4">
             {user ? (
               <div className="relative">
@@ -88,13 +76,12 @@ const Header: React.FC = () => {
                   </span>
                 </button>
 
-                {/* User Dropdown Menu */}
                 <AnimatePresence>
                   {isUserMenuOpen && (
                     <motion.div
-                      initial={{ opacity: 0, y: 10 }}
+                      initial={{ opacity: 0, y: 6 }}
                       animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: 10 }}
+                      exit={{ opacity: 0, y: 6 }}
                       className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
                       <div className="px-4 py-2 border-b border-gray-200">
                         <p className="text-sm font-medium text-gray-900">
@@ -123,23 +110,20 @@ const Header: React.FC = () => {
               </div>
             ) : (
               <>
-                <button
-                  className="text-gray-600 hover:text-gray-900 font-medium"
-                  disabled>
-                  Đăng nhập qua App
-                </button>
-                <motion.button
-                  className="bg-blue-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors"
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  disabled>
+                <a
+                  href="/login"
+                  className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 py-2 rounded-lg font-medium hover:from-blue-700 hover:to-purple-700">
+                  Đăng nhập
+                </a>
+                <a
+                  href="/"
+                  className="bg-white text-blue-600 border border-blue-600 px-4 py-2 rounded-lg font-medium hover:bg-blue-50">
                   Tải App
-                </motion.button>
+                </a>
               </>
             )}
           </div>
 
-          {/* Mobile menu button */}
           <button
             className="md:hidden p-2"
             onClick={() => setIsMenuOpen(!isMenuOpen)}>
@@ -151,7 +135,6 @@ const Header: React.FC = () => {
           </button>
         </div>
 
-        {/* Mobile Navigation */}
         {isMenuOpen && (
           <motion.div
             className="md:hidden py-4 border-t border-gray-200"
@@ -159,18 +142,19 @@ const Header: React.FC = () => {
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}>
             <div className="flex flex-col space-y-4">
-              {navItems.map((item) => (
+              {navItems.map((n) => (
                 <a
-                  key={item.name}
-                  href={item.href}
+                  key={n.name}
+                  href={n.href}
                   className="text-gray-600 hover:text-blue-600 transition-colors duration-200 font-medium"
                   onClick={() => setIsMenuOpen(false)}>
-                  {item.name}
+                  {n.name}
                 </a>
               ))}
+
               <div className="flex flex-col space-y-2 pt-4 border-t border-gray-200">
                 {user ? (
-                  <div className="space-y-2">
+                  <>
                     <div className="px-2 py-1 text-sm text-gray-500">
                       {user.fullName} • {user.email}
                     </div>
@@ -189,19 +173,20 @@ const Header: React.FC = () => {
                       <LogOut className="w-4 h-4" />
                       <span>Đăng xuất</span>
                     </button>
-                  </div>
+                  </>
                 ) : (
                   <>
-                    <button
-                      className="text-gray-600 hover:text-gray-900 font-medium text-left"
-                      disabled>
-                      Đăng nhập qua App
-                    </button>
-                    <button
-                      className="bg-blue-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors text-left"
-                      disabled>
+                    <a
+                      href="/login"
+                      onClick={() => setIsMenuOpen(false)}
+                      className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 py-2 rounded-lg font-medium hover:from-blue-700 hover:to-purple-700 text-left">
+                      Đăng nhập
+                    </a>
+                    <a
+                      href="/"
+                      className="bg-white text-blue-600 border border-blue-600 px-4 py-2 rounded-lg font-medium hover:bg-blue-50 text-left">
                       Tải App
-                    </button>
+                    </a>
                   </>
                 )}
               </div>
@@ -210,11 +195,12 @@ const Header: React.FC = () => {
         )}
       </div>
 
-      {/* Change Password Modal */}
       <ChangePassword
         isOpen={isChangePasswordOpen}
         onClose={() => setIsChangePasswordOpen(false)}
-        onSuccess={handleChangePasswordSuccess}
+        onSuccess={() => {
+          /* optional */
+        }}
       />
     </motion.header>
   );
