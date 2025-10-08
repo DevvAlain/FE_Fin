@@ -1,5 +1,7 @@
 import LandingPage from "./components/LandingPage";
 import AuthPage from "./components/AuthPage";
+import LoginPage from "./components/LoginPage";
+import AdminPage from "./components/AdminPage";
 
 function App() {
   // Simple client-side path handling so token links work (Netlify serves index.html)
@@ -25,6 +27,10 @@ function App() {
   }
 
   // Default: render landing page
+  // If path is /login, render login page
+  if (path === "/admin") return <AdminPage />;
+  if (path === "/login") return <LoginPage />;
+
   return <LandingPage />;
 }
 
