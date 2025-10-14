@@ -33,7 +33,12 @@ const LoginPage: React.FC = () => {
         }
 
         try {
+          // Decode JWT token để kiểm tra role admin
           const parts = token.split(".");
+          if (parts.length !== 3) {
+            throw new Error("Invalid token format");
+          }
+          
           const payload = JSON.parse(
             decodeURIComponent(
               escape(
@@ -41,16 +46,24 @@ const LoginPage: React.FC = () => {
               )
             )
           );
-          const role = payload?.role;
-          if (role !== "admin") {
-            setError("Tài khoản không có quyền admin trên web");
+          
+          // Kiểm tra role admin trong token
+          const role = payload?.role || payload?.userRole;
+          const isAdmin = role === "admin" || role === "Admin" || payload?.isAdmin === true;
+          
+          if (!isAdmin) {
+            setError("Chỉ tài khoản admin mới được truy cập hệ thống này");
             authService.logout();
-            showToast("Tài khoản không có quyền admin trên web", "error");
+            showToast("Chỉ tài khoản admin mới được truy cập hệ thống này", "error");
             return;
           }
-        } catch {
-          setError("Token không hợp lệ");
+          
+          console.log("Admin token verified:", { role, payload });
+        } catch (error) {
+          console.error("Token decode error:", error);
+          setError("Token không hợp lệ hoặc đã hết hạn");
           authService.logout();
+          showToast("Token không hợp lệ hoặc đã hết hạn", "error");
           return;
         }
 
