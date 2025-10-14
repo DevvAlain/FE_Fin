@@ -11,6 +11,7 @@ export interface User {
   timezone?: string;
   language?: string;
   isActive: boolean;
+  role?: 'user' | 'admin' | 'staff';
   lastLoginAt?: Date;
 }
 
@@ -325,15 +326,29 @@ class AuthService {
     }
 
     try {
-      // Decode JWT token to get user info (simple implementation)
-      const payload = JSON.parse(atob(this.accessToken.split(".")[1]));
+      // Decode JWT token to get user info
+      const parts = this.accessToken.split(".");
+      if (parts.length !== 3) {
+        throw new Error("Invalid token format");
+      }
+      
+      const payload = JSON.parse(
+        decodeURIComponent(
+          escape(
+            window.atob(parts[1].replace(/-/g, "+").replace(/_/g, "/"))
+          )
+        )
+      );
 
-      // In a real app, you might want to fetch fresh user data from server
-      // For now, we'll return basic info from token
+      // Extract user info from token payload
+      const role = payload?.role || payload?.userRole;
+      const isAdmin = role === "admin" || role === "Admin" || payload?.isAdmin === true;
+
       return {
-        id: payload.id,
-        fullName: "User", // You might want to store this in localStorage or fetch from server
-        email: "user@example.com", // Same here
+        id: payload.id || payload.sub || payload.userId,
+        fullName: payload.name || payload.fullName || "Admin User",
+        email: payload.email || "admin@example.com",
+        role: isAdmin ? 'admin' : 'user',
         isActive: true,
       };
     } catch (error) {
@@ -371,6 +386,29 @@ class AuthService {
   // Get access token
   getAccessToken(): string | null {
     return this.accessToken;
+  }
+
+  // Check if user is admin and redirect accordingly
+  async checkAdminAndRedirect(): Promise<boolean> {
+    try {
+      if (!this.isAuthenticated()) {
+        window.location.href = '/login';
+        return false;
+      }
+
+      const user = await this.getCurrentUser();
+      if (user && user.role === 'admin') {
+        window.location.href = '/admin';
+        return true;
+      } else {
+        window.location.href = '/';
+        return false;
+      }
+    } catch (error) {
+      console.error('Check admin error:', error);
+      window.location.href = '/login';
+      return false;
+    }
   }
 }
 
