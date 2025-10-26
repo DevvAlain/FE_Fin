@@ -1,7 +1,7 @@
 // Authentication service for FinWise
 const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL ||
-  "https://fine-bili-aimpact-4954bec5.koyeb.app";
+  "https://inc-michaelina-aimpact-66b8b08a.koyeb.app";
 
 export interface User {
   id: string;
