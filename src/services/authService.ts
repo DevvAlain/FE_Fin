@@ -1,6 +1,7 @@
 // Authentication service for FinWise
 const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL || "http://localhost:8080";
+  import.meta.env.VITE_API_BASE_URL ||
+  "https://fine-bili-aimpact-4954bec5.koyeb.app";
 
 export interface User {
   id: string;
@@ -11,7 +12,7 @@ export interface User {
   timezone?: string;
   language?: string;
   isActive: boolean;
-  role?: 'user' | 'admin' | 'staff';
+  role?: "user" | "admin" | "staff";
   lastLoginAt?: Date;
 }
 
@@ -331,24 +332,23 @@ class AuthService {
       if (parts.length !== 3) {
         throw new Error("Invalid token format");
       }
-      
+
       const payload = JSON.parse(
         decodeURIComponent(
-          escape(
-            window.atob(parts[1].replace(/-/g, "+").replace(/_/g, "/"))
-          )
+          escape(window.atob(parts[1].replace(/-/g, "+").replace(/_/g, "/")))
         )
       );
 
       // Extract user info from token payload
       const role = payload?.role || payload?.userRole;
-      const isAdmin = role === "admin" || role === "Admin" || payload?.isAdmin === true;
+      const isAdmin =
+        role === "admin" || role === "Admin" || payload?.isAdmin === true;
 
       return {
         id: payload.id || payload.sub || payload.userId,
         fullName: payload.name || payload.fullName || "Admin User",
         email: payload.email || "admin@example.com",
-        role: isAdmin ? 'admin' : 'user',
+        role: isAdmin ? "admin" : "user",
         isActive: true,
       };
     } catch (error) {
@@ -392,21 +392,21 @@ class AuthService {
   async checkAdminAndRedirect(): Promise<boolean> {
     try {
       if (!this.isAuthenticated()) {
-        window.location.href = '/login';
+        window.location.href = "/login";
         return false;
       }
 
       const user = await this.getCurrentUser();
-      if (user && user.role === 'admin') {
-        window.location.href = '/admin';
+      if (user && user.role === "admin") {
+        window.location.href = "/admin";
         return true;
       } else {
-        window.location.href = '/';
+        window.location.href = "/";
         return false;
       }
     } catch (error) {
-      console.error('Check admin error:', error);
-      window.location.href = '/login';
+      console.error("Check admin error:", error);
+      window.location.href = "/login";
       return false;
     }
   }

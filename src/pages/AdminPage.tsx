@@ -5,6 +5,7 @@ import Sidebar from "../components/SidebarAdmin";
 import DashboardPage from "./DashboardPage";
 import UsersPage from "./UsersPage";
 import PlansPage from "./PlansPage";
+import PaymentsPage from "./PaymentsPage";
 import SyncLogsPage from "./SyncLogsPage";
 
 const AdminPage: React.FC = () => {
@@ -119,6 +120,7 @@ const AdminPage: React.FC = () => {
             <Route path="/" element={<DashboardPage />} />
             <Route path="users" element={<UsersPage />} />
             <Route path="plans" element={<PlansPage />} />
+            <Route path="payments" element={<PaymentsPage />} />
             <Route path="sync-logs" element={<SyncLogsPage />} />
             <Route path="*" element={<Navigate to="/admin" replace />} />
           </Routes>
