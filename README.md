@@ -54,7 +54,7 @@ Tạo file `.env.local` với các biến sau:
 
 ```env
 # Backend API Configuration
-VITE_API_BASE_URL=http://localhost:3000
+VITE_API_BASE_URL=https://fine-bili-aimpact-4954bec5.koyeb.app
 
 # Frontend URL (for email verification links)
 VITE_FRONTEND_URL=http://localhost:5173
@@ -64,7 +64,31 @@ VITE_APP_NAME=FinWise
 VITE_APP_DESCRIPTION=Hệ thống Quản lý Chi tiêu Cá nhân qua AI
 ```
 
-## 🛠️ Scripts có sẵn
+## � Không đẩy file .env lên Git
+
+File `.env` thường chứa thông tin nhạy cảm (API keys, secrets). Để tránh vô tình đưa `.env` lên remote, làm theo các bước sau nếu bạn đã commit `.env` hoặc muốn bảo đảm nó không bị push:
+
+1. Thêm `.env` vào `.gitignore` (đã có sẵn trong repo).
+2. Nếu `.env` đã được commit, bỏ nó khỏi index và commit lại:
+
+```powershell
+# Bỏ .env khỏi git index nhưng giữ file trên disk
+git rm --cached .env
+
+# Thêm .env vào .gitignore nếu chưa có
+echo ".env" >> .gitignore
+
+# Commit thay đổi
+git add .gitignore
+git commit -m "Ignore .env and remove from index"
+
+# Đẩy lên remote
+git push
+```
+
+Lưu ý: Nếu `.env` đã xuất hiện trong lịch sử commit và chứa secret, cân nhắc rotate các secret và dùng công cụ như `git filter-repo` hoặc `BFG Repo-Cleaner` để loại bỏ chúng khỏi lịch sử.
+
+## �🛠️ Scripts có sẵn
 
 ```bash
 # Khởi chạy development server
@@ -249,7 +273,7 @@ npm run build
 
 ### 1. Chạy Backend
 
-Đảm bảo backend đang chạy tại `http://localhost:3000`
+Đảm bảo backend đang chạy tại `https://fine-bili-aimpact-4954bec5.koyeb.app`
 
 ### 2. Test Flow
 

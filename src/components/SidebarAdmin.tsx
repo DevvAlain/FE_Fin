@@ -5,10 +5,11 @@ import {
   LayoutDashboard,
   Users,
   LogOut,
-  Menu, 
+  Menu,
   ChevronDown,
   Package,
   Activity,
+  CreditCard,
   type LucideIcon,
 } from 'lucide-react';
 import authService from '../services/authService';
@@ -29,14 +30,19 @@ const Sidebar = () => {
   const menuItems: MenuItem[] = [
     { icon: LayoutDashboard, label: 'Dashboard', path: '/admin' },
     { icon: Users, label: 'Users', path: '/admin/users' },
-    { 
-      icon: Package, 
-      label: 'Subscription Plans', 
+    {
+      icon: Package,
+      label: 'Subscription Plans',
       path: '/admin/plans'
     },
-    { 
-      icon: Activity, 
-      label: 'Sync Logs', 
+    {
+      icon: CreditCard,
+      label: 'Payments',
+      path: '/admin/payments'
+    },
+    {
+      icon: Activity,
+      label: 'Sync Logs',
       path: '/admin/sync-logs'
     },
     // { icon: Settings, label: 'Settings', path: '/admin/settings' },
