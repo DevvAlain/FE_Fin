@@ -54,7 +54,7 @@ Tạo file `.env.local` với các biến sau:
 
 ```env
 # Backend API Configuration
-VITE_API_BASE_URL=https://fine-bili-aimpact-4954bec5.koyeb.app
+VITE_API_BASE_URL=https://inc-michaelina-aimpact-66b8b08a.koyeb.app
 
 # Frontend URL (for email verification links)
 VITE_FRONTEND_URL=http://localhost:5173
@@ -273,7 +273,7 @@ npm run build
 
 ### 1. Chạy Backend
 
-Đảm bảo backend đang chạy tại `https://fine-bili-aimpact-4954bec5.koyeb.app`
+Đảm bảo backend đang chạy tại `https://inc-michaelina-aimpact-66b8b08a.koyeb.app`
 
 ### 2. Test Flow
 
