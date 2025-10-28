@@ -1,12 +1,12 @@
-import React, { useEffect, useState } from 'react';
-import { 
-  Search, 
-  Filter, 
-  Plus, 
-  Edit, 
-  Trash2, 
-  Eye, 
-  EyeOff, 
+import React, { useEffect, useState } from "react";
+import {
+  Search,
+  Filter,
+  Plus,
+  Edit,
+  Trash2,
+  Eye,
+  EyeOff,
   User,
   Mail,
   Shield,
@@ -19,20 +19,21 @@ import {
   Calendar,
   CheckCircle,
   XCircle,
-  RefreshCw
-} from 'lucide-react';
+  RefreshCw,
+} from "lucide-react";
+import adminService from "../services/adminService";
 
 interface User {
   _id: string;
   email: string;
   fullName: string;
-  role: 'user' | 'admin' | 'staff';
+  role: "user" | "admin" | "staff";
   isActive: boolean;
   createdAt: string;
   lastLoginAt?: string;
   subscription?: {
     planName: string;
-    status: 'active' | 'expired' | 'cancelled';
+    status: "active" | "expired" | "cancelled";
   };
 }
 
@@ -40,134 +41,74 @@ const UsersPage: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [roleFilter, setRoleFilter] = useState('');
-  const [statusFilter, setStatusFilter] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
+  const [roleFilter, setRoleFilter] = useState("");
+  const [statusFilter, setStatusFilter] = useState("");
 
-  // Mock data for demonstration
+  // Fetch users from API
   useEffect(() => {
-    const mockUsers: User[] = [
-      {
-        _id: '1',
-        email: 'admin@example.com',
-        fullName: 'Admin User',
-        role: 'admin',
-        isActive: true,
-        createdAt: '2024-01-15T10:00:00Z',
-        lastLoginAt: '2024-01-20T14:30:00Z',
-        subscription: {
-          planName: 'Premium',
-          status: 'active'
-        }
-      },
-      {
-        _id: '2',
-        email: 'user1@example.com',
-        fullName: 'John Doe',
-        role: 'user',
-        isActive: true,
-        createdAt: '2024-01-10T09:00:00Z',
-        lastLoginAt: '2024-01-19T16:45:00Z',
-        subscription: {
-          planName: 'Basic',
-          status: 'active'
-        }
-      },
-      {
-        _id: '3',
-        email: 'user2@example.com',
-        fullName: 'Jane Smith',
-        role: 'user',
-        isActive: false,
-        createdAt: '2024-01-05T11:30:00Z',
-        lastLoginAt: '2024-01-15T12:20:00Z',
-        subscription: {
-          planName: 'Premium',
-          status: 'expired'
-        }
+    const fetchUsers = async () => {
+      setLoading(true);
+      try {
+        const { users } = await adminService.listUsers();
+        setUsers(users);
+      } catch (error) {
+        console.error("Error fetching users:", error);
+      } finally {
+        setLoading(false);
       }
-    ];
+    };
 
-    setTimeout(() => {
-      setUsers(mockUsers);
-      setLoading(false);
-    }, 1000);
+    fetchUsers();
   }, []);
 
-  const filteredUsers = users.filter(user => {
-    const matchesSearch = user.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         user.email.toLowerCase().includes(searchTerm.toLowerCase());
+  const filteredUsers = users.filter((user) => {
+    const matchesSearch =
+      user.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.email.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesRole = !roleFilter || user.role === roleFilter;
-    const matchesStatus = !statusFilter || 
-                         (statusFilter === 'active' && user.isActive) ||
-                         (statusFilter === 'inactive' && !user.isActive);
-    
+    const matchesStatus =
+      !statusFilter ||
+      (statusFilter === "active" && user.isActive) ||
+      (statusFilter === "inactive" && !user.isActive);
+
     return matchesSearch && matchesRole && matchesStatus;
   });
 
-  const handleToggleStatus = async (userId: string) => {
-    setUsers(prev => prev.map(user => 
-      user._id === userId ? { ...user, isActive: !user.isActive } : user
-    ));
+  const handleToggleStatus = async (userId: string, isActive: boolean) => {
+    try {
+      if (isActive) {
+        await adminService.lockUser(userId);
+      } else {
+        await adminService.unlockUser(userId);
+      }
+      setUsers((prev) =>
+        prev.map((user) =>
+          user._id === userId ? { ...user, isActive: !isActive } : user
+        )
+      );
+    } catch (error) {
+      console.error("Error toggling user status:", error);
+    }
   };
 
   const handleDeleteUser = async (userId: string) => {
-    if (!confirm('Bạn có chắc chắn muốn xóa người dùng này?')) return;
-    setUsers(prev => prev.filter(user => user._id !== userId));
+    if (!confirm("Bạn có chắc chắn muốn xóa người dùng này?")) return;
+    try {
+      await adminService.deleteUser(userId);
+      setUsers((prev) => prev.filter((user) => user._id !== userId));
+    } catch (error) {
+      console.error("Error deleting user:", error);
+    }
   };
 
   const handleRefresh = async () => {
     setRefreshing(true);
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Reload mock data (in real app, this would be an API call)
-      const mockUsers: User[] = [
-        {
-          _id: '1',
-          email: 'admin@example.com',
-          fullName: 'Admin User',
-          role: 'admin',
-          isActive: true,
-          createdAt: '2024-01-15T10:00:00Z',
-          lastLoginAt: '2024-01-20T14:30:00Z',
-          subscription: {
-            planName: 'Premium',
-            status: 'active'
-          }
-        },
-        {
-          _id: '2',
-          email: 'user1@example.com',
-          fullName: 'John Doe',
-          role: 'user',
-          isActive: true,
-          createdAt: '2024-01-10T09:00:00Z',
-          lastLoginAt: '2024-01-19T16:45:00Z',
-          subscription: {
-            planName: 'Basic',
-            status: 'active'
-          }
-        },
-        {
-          _id: '3',
-          email: 'user2@example.com',
-          fullName: 'Jane Smith',
-          role: 'user',
-          isActive: false,
-          createdAt: '2024-01-05T11:30:00Z',
-          lastLoginAt: '2024-01-15T12:20:00Z',
-          subscription: {
-            planName: 'Premium',
-            status: 'expired'
-          }
-        }
-      ];
-      
-      setUsers(mockUsers);
+      const { users } = await adminService.listUsers();
+      setUsers(users);
     } catch (error) {
-      console.error('Error refreshing users:', error);
+      console.error("Error refreshing users:", error);
     } finally {
       setRefreshing(false);
     }
@@ -175,32 +116,31 @@ const UsersPage: React.FC = () => {
 
   const getRoleColor = (role: string) => {
     switch (role) {
-      case 'admin':
-        return 'bg-red-100 text-red-800';
-      case 'staff':
-        return 'bg-blue-100 text-blue-800';
+      case "admin":
+        return "bg-red-100 text-red-800";
+      case "staff":
+        return "bg-blue-100 text-blue-800";
       default:
-        return 'bg-gray-100 text-gray-800';
+        return "bg-gray-100 text-gray-800";
     }
   };
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'active':
-        return 'bg-green-100 text-green-800';
-      case 'expired':
-        return 'bg-yellow-100 text-yellow-800';
-      case 'cancelled':
-        return 'bg-red-100 text-red-800';
+      case "active":
+        return "bg-green-100 text-green-800";
+      case "expired":
+        return "bg-yellow-100 text-yellow-800";
+      case "cancelled":
+        return "bg-red-100 text-red-800";
       default:
-        return 'bg-gray-100 text-gray-800';
+        return "bg-gray-100 text-gray-800";
     }
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('vi-VN');
+    return new Date(dateString).toLocaleDateString("vi-VN");
   };
-
 
   if (loading) {
     return (
@@ -217,7 +157,9 @@ const UsersPage: React.FC = () => {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold mb-2">Quản lý người dùng</h1>
-            <p className="text-indigo-100 text-lg">Quản lý tài khoản và quyền truy cập</p>
+            <p className="text-indigo-100 text-lg">
+              Quản lý tài khoản và quyền truy cập
+            </p>
           </div>
           <div className="flex items-center space-x-4">
             <div className="text-right">
@@ -225,9 +167,8 @@ const UsersPage: React.FC = () => {
               <div className="text-2xl font-bold">{users.length}</div>
             </div>
             <button
-              onClick={() => console.log('Create user')}
-              className="p-3 bg-white/20 rounded-xl hover:bg-white/30 transition-colors"
-            >
+              onClick={() => console.log("Create user")}
+              className="p-3 bg-white/20 rounded-xl hover:bg-white/30 transition-colors">
               <Plus className="h-6 w-6" />
             </button>
           </div>
@@ -247,7 +188,9 @@ const UsersPage: React.FC = () => {
                 +12%
               </div>
             </div>
-            <h3 className="text-sm font-medium text-gray-600 mb-1">Tổng người dùng</h3>
+            <h3 className="text-sm font-medium text-gray-600 mb-1">
+              Tổng người dùng
+            </h3>
             <p className="text-3xl font-bold text-gray-900">{users.length}</p>
             <div className="mt-2 text-xs text-gray-500">Đã đăng ký</div>
           </div>
@@ -264,9 +207,11 @@ const UsersPage: React.FC = () => {
                 +8%
               </div>
             </div>
-            <h3 className="text-sm font-medium text-gray-600 mb-1">Đang hoạt động</h3>
+            <h3 className="text-sm font-medium text-gray-600 mb-1">
+              Đang hoạt động
+            </h3>
             <p className="text-3xl font-bold text-gray-900">
-              {users.filter(u => u.isActive).length}
+              {users.filter((u) => u.isActive).length}
             </p>
             <div className="mt-2 text-xs text-gray-500">Đang sử dụng</div>
           </div>
@@ -283,9 +228,11 @@ const UsersPage: React.FC = () => {
                 Stable
               </div>
             </div>
-            <h3 className="text-sm font-medium text-gray-600 mb-1">Quản trị viên</h3>
+            <h3 className="text-sm font-medium text-gray-600 mb-1">
+              Quản trị viên
+            </h3>
             <p className="text-3xl font-bold text-gray-900">
-              {users.filter(u => u.role === 'admin').length}
+              {users.filter((u) => u.role === "admin").length}
             </p>
             <div className="mt-2 text-xs text-gray-500">Có quyền admin</div>
           </div>
@@ -302,20 +249,23 @@ const UsersPage: React.FC = () => {
                 +15%
               </div>
             </div>
-            <h3 className="text-sm font-medium text-gray-600 mb-1">Người dùng mới</h3>
+            <h3 className="text-sm font-medium text-gray-600 mb-1">
+              Người dùng mới
+            </h3>
             <p className="text-3xl font-bold text-gray-900">
-              {users.filter(u => {
-                const createdDate = new Date(u.createdAt);
-                const thirtyDaysAgo = new Date();
-                thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-                return createdDate > thirtyDaysAgo;
-              }).length}
+              {
+                users.filter((u) => {
+                  const createdDate = new Date(u.createdAt);
+                  const thirtyDaysAgo = new Date();
+                  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+                  return createdDate > thirtyDaysAgo;
+                }).length
+              }
             </p>
             <div className="mt-2 text-xs text-gray-500">Trong 30 ngày</div>
           </div>
         </div>
       </div>
-
 
       {/* Filters */}
       <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
@@ -344,8 +294,7 @@ const UsersPage: React.FC = () => {
           <select
             value={roleFilter}
             onChange={(e) => setRoleFilter(e.target.value)}
-            className="px-4 py-2.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all min-w-[140px]"
-          >
+            className="px-4 py-2.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all min-w-[140px]">
             <option value="">Tất cả vai trò</option>
             <option value="admin">Admin</option>
             <option value="staff">Staff</option>
@@ -356,8 +305,7 @@ const UsersPage: React.FC = () => {
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="px-4 py-2.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all min-w-[160px]"
-          >
+            className="px-4 py-2.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all min-w-[160px]">
             <option value="">Tất cả trạng thái</option>
             <option value="active">Hoạt động</option>
             <option value="inactive">Không hoạt động</option>
@@ -370,21 +318,21 @@ const UsersPage: React.FC = () => {
           </button>
 
           {/* Refresh Button */}
-          <button 
+          <button
             onClick={handleRefresh}
             disabled={refreshing}
             className={`flex items-center px-4 py-2.5 text-sm rounded-lg transition-all font-medium ${
-              refreshing 
-                ? 'bg-blue-400 text-white cursor-not-allowed' 
-                : 'bg-blue-600 text-white hover:bg-blue-700'
-            }`}
-          >
-            <RefreshCw className={`h-4 w-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
-            {refreshing ? 'Đang tải...' : 'Làm mới'}
+              refreshing
+                ? "bg-blue-400 text-white cursor-not-allowed"
+                : "bg-blue-600 text-white hover:bg-blue-700"
+            }`}>
+            <RefreshCw
+              className={`h-4 w-4 mr-2 ${refreshing ? "animate-spin" : ""}`}
+            />
+            {refreshing ? "Đang tải..." : "Làm mới"}
           </button>
         </div>
       </div>
-
 
       {/* Users Table */}
       <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
@@ -394,7 +342,9 @@ const UsersPage: React.FC = () => {
               <div className="p-2 bg-indigo-100 rounded-lg mr-3">
                 <Users className="h-5 w-5 text-indigo-600" />
               </div>
-              <h3 className="text-lg font-semibold text-gray-900">Danh sách người dùng</h3>
+              <h3 className="text-lg font-semibold text-gray-900">
+                Danh sách người dùng
+              </h3>
             </div>
             <div className="text-sm text-gray-500">
               Hiển thị {filteredUsers.length} kết quả
@@ -428,7 +378,9 @@ const UsersPage: React.FC = () => {
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
               {filteredUsers.map((user) => (
-                <tr key={user._id} className="hover:bg-gray-50 transition-colors">
+                <tr
+                  key={user._id}
+                  className="hover:bg-gray-50 transition-colors">
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
                       <div className="flex-shrink-0 h-12 w-12">
@@ -449,17 +401,26 @@ const UsersPage: React.FC = () => {
                   </td>
 
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${getRoleColor(user.role)}`}>
+                    <span
+                      className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${getRoleColor(
+                        user.role
+                      )}`}>
                       <Shield className="h-3 w-3 mr-1" />
-                      {user.role === 'admin' ? 'Admin' : 
-                       user.role === 'staff' ? 'Staff' : 'User'}
+                      {user.role === "admin"
+                        ? "Admin"
+                        : user.role === "staff"
+                        ? "Staff"
+                        : "User"}
                     </span>
                   </td>
 
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${
-                      user.isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                    }`}>
+                    <span
+                      className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${
+                        user.isActive
+                          ? "bg-green-100 text-green-800"
+                          : "bg-red-100 text-red-800"
+                      }`}>
                       {user.isActive ? (
                         <>
                           <CheckCircle className="h-3 w-3 mr-1" />
@@ -480,19 +441,29 @@ const UsersPage: React.FC = () => {
                         <div className="text-sm font-semibold text-gray-900">
                           {user.subscription.planName}
                         </div>
-                        <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(user.subscription.status)}`}>
-                          {user.subscription.status === 'active' ? 'Hoạt động' :
-                           user.subscription.status === 'expired' ? 'Hết hạn' : 'Đã hủy'}
+                        <span
+                          className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(
+                            user.subscription.status
+                          )}`}>
+                          {user.subscription.status === "active"
+                            ? "Hoạt động"
+                            : user.subscription.status === "expired"
+                            ? "Hết hạn"
+                            : "Đã hủy"}
                         </span>
                       </div>
                     ) : (
-                      <span className="text-sm text-gray-500">Chưa đăng ký</span>
+                      <span className="text-sm text-gray-500">
+                        Chưa đăng ký
+                      </span>
                     )}
                   </td>
 
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm text-gray-900">
-                      {user.lastLoginAt ? formatDate(user.lastLoginAt) : 'Chưa đăng nhập'}
+                      {user.lastLoginAt
+                        ? formatDate(user.lastLoginAt)
+                        : "Chưa đăng nhập"}
                     </div>
                     <div className="text-sm text-gray-500 flex items-center">
                       <Calendar className="h-3 w-3 mr-1" />
@@ -503,28 +474,31 @@ const UsersPage: React.FC = () => {
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center space-x-3">
                       <button
-                        onClick={() => console.log('Edit user:', user._id)}
+                        onClick={() => console.log("Edit user:", user._id)}
                         className="p-2 text-blue-600 hover:text-blue-900 hover:bg-blue-50 rounded-lg transition-colors"
-                        title="Chỉnh sửa"
-                      >
+                        title="Chỉnh sửa">
                         <Edit className="h-4 w-4" />
                       </button>
                       <button
-                        onClick={() => handleToggleStatus(user._id)}
+                        onClick={() =>
+                          handleToggleStatus(user._id, user.isActive)
+                        }
                         className={`p-2 rounded-lg transition-colors ${
-                          user.isActive 
-                            ? "text-yellow-600 hover:text-yellow-900 hover:bg-yellow-50" 
+                          user.isActive
+                            ? "text-yellow-600 hover:text-yellow-900 hover:bg-yellow-50"
                             : "text-green-600 hover:text-green-900 hover:bg-green-50"
                         }`}
-                        title={user.isActive ? "Vô hiệu hóa" : "Kích hoạt"}
-                      >
-                        {user.isActive ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                        title={user.isActive ? "Vô hiệu hóa" : "Kích hoạt"}>
+                        {user.isActive ? (
+                          <EyeOff className="h-4 w-4" />
+                        ) : (
+                          <Eye className="h-4 w-4" />
+                        )}
                       </button>
                       <button
                         onClick={() => handleDeleteUser(user._id)}
                         className="p-2 text-red-600 hover:text-red-900 hover:bg-red-50 rounded-lg transition-colors"
-                        title="Xóa"
-                      >
+                        title="Xóa">
                         <Trash2 className="h-4 w-4" />
                       </button>
                     </div>
@@ -541,32 +515,31 @@ const UsersPage: React.FC = () => {
               <Users className="h-10 w-10 text-indigo-600" />
             </div>
             <h3 className="text-xl font-semibold text-gray-900 mb-3">
-              {users.length === 0 ? 'Chưa có người dùng' : 'Không tìm thấy kết quả'}
+              {users.length === 0
+                ? "Chưa có người dùng"
+                : "Không tìm thấy kết quả"}
             </h3>
             <p className="text-gray-500 mb-8 max-w-md mx-auto">
-              {users.length === 0 
-                ? 'Hệ thống chưa có người dùng nào. Người dùng sẽ xuất hiện khi họ đăng ký tài khoản.'
-                : 'Không tìm thấy người dùng nào phù hợp với bộ lọc hiện tại. Hãy thử điều chỉnh bộ lọc.'
-              }
+              {users.length === 0
+                ? "Hệ thống chưa có người dùng nào. Người dùng sẽ xuất hiện khi họ đăng ký tài khoản."
+                : "Không tìm thấy người dùng nào phù hợp với bộ lọc hiện tại. Hãy thử điều chỉnh bộ lọc."}
             </p>
             <div className="flex items-center justify-center space-x-4">
               {users.length > 0 && (
                 <button
                   onClick={() => {
-                    setSearchTerm('');
-                    setRoleFilter('');
-                    setStatusFilter('');
+                    setSearchTerm("");
+                    setRoleFilter("");
+                    setStatusFilter("");
                   }}
-                  className="inline-flex items-center px-6 py-3 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-colors font-medium"
-                >
+                  className="inline-flex items-center px-6 py-3 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-colors font-medium">
                   <RefreshCw className="h-5 w-5 mr-2" />
                   Xóa bộ lọc
                 </button>
               )}
               <button
-                onClick={() => console.log('Create user')}
-                className="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors font-medium"
-              >
+                onClick={() => console.log("Create user")}
+                className="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors font-medium">
                 <Plus className="h-5 w-5 mr-2" />
                 Thêm người dùng
               </button>

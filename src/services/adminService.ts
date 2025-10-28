@@ -50,7 +50,7 @@ interface SubscriptionPlan {
   _id: string;
   planName: string;
   planType: string;
-  price: string;
+  price: { $numberDecimal: string } | string; // Updated to reflect backend structure
   currency: string;
   billingPeriod: string;
   features: string[];
@@ -127,6 +127,33 @@ interface Pagination {
   limit: number;
   total: number;
   pages: number;
+}
+
+interface AdminUser {
+  _id: string;
+  email: string;
+  username: string;
+  fullName: string;
+  status: string;
+  role: "user" | "admin" | "staff"; // Updated to match the User type in UsersPage.tsx
+  createdAt: string;
+  updatedAt: string;
+  isActive: boolean; // Added to match the User type in UsersPage.tsx
+}
+
+interface Review {
+  paymentId: string;
+  user: string;
+  provider: string;
+  transactionId: string;
+  amount: number;
+  currency: string;
+  paidAt: string;
+  review: {
+    rating: number;
+    comment: string;
+    createdAt: string;
+  };
 }
 
 class AdminService {
@@ -636,6 +663,162 @@ class AdminService {
       };
     }
   }
+
+  // Admin User Management
+  async listUsers(params?: {
+    search?: string;
+    status?: string;
+    role?: string;
+    page?: number;
+    limit?: number;
+  }): Promise<{
+    users: AdminUser[];
+    total: number;
+    page: number;
+    limit: number;
+  }> {
+    const queryParams = new URLSearchParams();
+    if (params?.search) queryParams.append("search", params.search);
+    if (params?.status) queryParams.append("status", params.status);
+    if (params?.role) queryParams.append("role", params.role);
+    if (params?.page) queryParams.append("page", params.page.toString());
+    if (params?.limit) queryParams.append("limit", params.limit.toString());
+
+    const queryString = queryParams.toString();
+    const endpoint = `/api/v1/admin/users${
+      queryString ? `?${queryString}` : ""
+    }`;
+
+    const response = await this.makeRequest<{
+      users: AdminUser[];
+      total: number;
+      page: number;
+      limit: number;
+    }>(endpoint);
+    return this.extractData(response);
+  }
+
+  async getUserDetail(userId: string): Promise<AdminUser> {
+    const endpoint = `/api/v1/admin/users/${userId}`;
+    const response = await this.makeRequest<AdminUser>(endpoint);
+    return this.extractData(response);
+  }
+
+  async updateUser(
+    userId: string,
+    userData: Partial<AdminUser>
+  ): Promise<AdminUser> {
+    const endpoint = `/api/v1/admin/users/${userId}`;
+    const response = await this.makeRequest<AdminUser>(endpoint, {
+      method: "PATCH",
+      body: JSON.stringify(userData),
+    });
+    return this.extractData(response);
+  }
+
+  async lockUser(userId: string): Promise<AdminUser> {
+    const endpoint = `/api/v1/admin/users/${userId}/lock`;
+    const response = await this.makeRequest<AdminUser>(endpoint, {
+      method: "PATCH",
+    });
+    return this.extractData(response);
+  }
+
+  async unlockUser(userId: string): Promise<AdminUser> {
+    const endpoint = `/api/v1/admin/users/${userId}/unlock`;
+    const response = await this.makeRequest<AdminUser>(endpoint, {
+      method: "PATCH",
+    });
+    return this.extractData(response);
+  }
+
+  async deleteUser(userId: string): Promise<void> {
+    const endpoint = `/api/v1/admin/users/${userId}`;
+    await this.makeRequest<void>(endpoint, {
+      method: "DELETE",
+    });
+  }
+
+  // Subscription Plans Management
+  async createSubscriptionPlan(
+    planData: Partial<SubscriptionPlan>
+  ): Promise<SubscriptionPlan> {
+    const response = await this.makeRequest<SubscriptionPlan>(
+      "/api/v1/admin/plans",
+      {
+        method: "POST",
+        body: JSON.stringify(planData),
+      }
+    );
+    return this.extractData(response);
+  }
+
+  async updateSubscriptionPlan(
+    planId: string,
+    planData: Partial<SubscriptionPlan>
+  ): Promise<SubscriptionPlan> {
+    const response = await this.makeRequest<SubscriptionPlan>(
+      `/api/v1/admin/plans/${planId}`,
+      {
+        method: "PUT",
+        body: JSON.stringify(planData),
+      }
+    );
+    return this.extractData(response);
+  }
+
+  async getSubscriptionPlans(): Promise<SubscriptionPlan[]> {
+    const response = await this.makeRequest<SubscriptionPlan[]>(
+      "/api/v1/admin/plans"
+    );
+    return this.extractArray(response);
+  }
+
+  async getSubscriptionPlanDetail(planId: string): Promise<SubscriptionPlan> {
+    const response = await this.makeRequest<SubscriptionPlan>(
+      `/api/v1/admin/plans/${planId}`
+    );
+    return this.extractData(response);
+  }
+
+  async deleteSubscriptionPlan(planId: string): Promise<void> {
+    await this.makeRequest<void>(`/api/v1/admin/plans/${planId}`, {
+      method: "DELETE",
+    });
+  }
+
+  // Reviews Management
+  async listReviews(params?: {
+    page?: number;
+    limit?: number;
+    rating?: number;
+    provider?: string;
+  }): Promise<{ total: number; items: Review[] }> {
+    const queryParams = new URLSearchParams({
+      ...(params?.page ? { page: params.page.toString() } : {}),
+      ...(params?.limit ? { limit: params.limit.toString() } : {}),
+      ...(params?.rating ? { rating: params.rating.toString() } : {}),
+      ...(params?.provider ? { provider: params.provider } : {}),
+    });
+
+    const response = await this.makeRequest<{ total: number; items: Review[] }>(
+      `/api/v1/admin/reviews?${queryParams}`
+    );
+    return this.extractData(response);
+  }
+
+  async getReview(paymentId: string): Promise<Review> {
+    const response = await this.makeRequest<Review>(
+      `/api/v1/admin/reviews/${paymentId}`
+    );
+    return this.extractData(response);
+  }
+
+  async deleteReview(paymentId: string): Promise<void> {
+    await this.makeRequest<void>(`/api/v1/admin/reviews/${paymentId}`, {
+      method: "DELETE",
+    });
+  }
 }
 
 export default new AdminService();
@@ -646,4 +829,5 @@ export type {
   TransferSummary,
   TransferHistory,
   TransferHistoryPoint,
+  Review,
 };
