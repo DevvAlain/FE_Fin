@@ -127,7 +127,7 @@ const PlansPage: React.FC = () => {
     setFormData({
       planName: plan.planName,
       planType: plan.planType,
-      price: plan.price ? String(plan.price) : "",
+      price: plan.price ? formatPrice(plan.price) : "", // Ensure price is formatted
       currency: plan.currency,
       billingPeriod: plan.billingPeriod,
       features: plan.features.length > 0 ? plan.features : [""],
@@ -170,6 +170,24 @@ const PlansPage: React.FC = () => {
 
   const formatNumber = (num: number) =>
     new Intl.NumberFormat("vi-VN").format(num);
+
+  const formatPrice = (
+    price: string | { $numberDecimal: string } | null
+  ): string => {
+    if (price && typeof price === "object" && "$numberDecimal" in price) {
+      return parseFloat(price.$numberDecimal).toLocaleString("vi-VN", {
+        style: "currency",
+        currency: "VND",
+      });
+    }
+    if (typeof price === "string") {
+      return parseFloat(price).toLocaleString("vi-VN", {
+        style: "currency",
+        currency: "VND",
+      });
+    }
+    return "0 VND";
+  };
 
   if (loading) {
     return (
@@ -272,7 +290,7 @@ const PlansPage: React.FC = () => {
                 plans.length > 0
                   ? (
                       plans.reduce(
-                        (sum, plan) => sum + parseInt(plan.price),
+                        (sum, plan) => sum + parseInt(formatPrice(plan.price)), // Ensure price is formatted
                         0
                       ) / plans.length
                     ).toString()
@@ -361,7 +379,7 @@ const PlansPage: React.FC = () => {
                 {/* Price */}
                 <div className="mb-6">
                   <div className="text-3xl font-bold text-gray-900 mb-1">
-                    {formatCurrency(plan.price)}
+                    {formatPrice(plan.price)}
                   </div>
                   <div className="text-sm text-gray-500 flex items-center">
                     <Calendar className="h-4 w-4 mr-1" />
@@ -611,7 +629,7 @@ const PlansPage: React.FC = () => {
                   <button
                     onClick={addFeature}
                     className="text-blue-600 hover:text-blue-800 text-sm">
-                    + ThÃªm tÃ­nh nÄƒng
+                    + Thêm tính năng
                   </button>
                 </div>
 
