@@ -143,17 +143,74 @@ interface AdminUser {
 
 interface Review {
   paymentId: string;
-  user: string;
+  user: {
+    id: string;
+    name: string;
+    email: string;
+  } | null;
   provider: string;
   transactionId: string;
   amount: number;
   currency: string;
+  paymentStatus: string;
   paidAt: string;
   review: {
     rating: number;
-    comment: string;
+    content: string;
     createdAt: string;
+    user: string;
   };
+}
+
+interface ReviewSummary {
+  totalReviews: number;
+  averageRating: number;
+  ratingDistribution: {
+    1: number;
+    2: number;
+    3: number;
+    4: number;
+    5: number;
+  };
+  sentiment: {
+    counts: {
+      positive: number;
+      neutral: number;
+      negative: number;
+    };
+    percentages: {
+      positive: number;
+      neutral: number;
+      negative: number;
+    };
+  };
+  trend: {
+    last7Days: {
+      count: number;
+      avgRating: number;
+    };
+    previous7Days: {
+      count: number;
+      avgRating: number;
+    };
+    change: number;
+  };
+  providerBreakdown: Array<{
+    provider: string;
+    count: number;
+    avgRating: number;
+  }>;
+}
+
+interface ReviewsResponse {
+  summary: ReviewSummary;
+  pagination: {
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  };
+  items: Review[];
 }
 
 class AdminService {
@@ -793,7 +850,7 @@ class AdminService {
     limit?: number;
     rating?: number;
     provider?: string;
-  }): Promise<{ total: number; items: Review[] }> {
+  }): Promise<ReviewsResponse> {
     const queryParams = new URLSearchParams({
       ...(params?.page ? { page: params.page.toString() } : {}),
       ...(params?.limit ? { limit: params.limit.toString() } : {}),
@@ -801,7 +858,7 @@ class AdminService {
       ...(params?.provider ? { provider: params.provider } : {}),
     });
 
-    const response = await this.makeRequest<{ total: number; items: Review[] }>(
+    const response = await this.makeRequest<ReviewsResponse>(
       `/api/v1/admin/reviews?${queryParams}`
     );
     return this.extractData(response);
@@ -830,4 +887,6 @@ export type {
   TransferHistory,
   TransferHistoryPoint,
   Review,
+  ReviewSummary,
+  ReviewsResponse,
 };

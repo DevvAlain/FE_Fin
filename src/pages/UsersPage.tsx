@@ -15,7 +15,6 @@ import {
   Users,
   UserCheck,
   UserPlus,
-  Activity,
   Calendar,
   CheckCircle,
   XCircle,
@@ -63,6 +62,9 @@ const UsersPage: React.FC = () => {
   }, []);
 
   const filteredUsers = users.filter((user) => {
+    // Bỏ qua admin users
+    if (user.role === "admin") return false;
+
     const matchesSearch =
       user.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       user.email.toLowerCase().includes(searchTerm.toLowerCase());
@@ -220,27 +222,6 @@ const UsersPage: React.FC = () => {
         <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden hover:shadow-xl transition-all duration-300">
           <div className="p-6">
             <div className="flex items-center justify-between mb-4">
-              <div className="p-3 bg-gradient-to-br from-red-500 to-red-600 rounded-xl">
-                <Shield className="h-6 w-6 text-white" />
-              </div>
-              <div className="flex items-center text-gray-600 text-sm font-medium">
-                <Activity className="h-4 w-4 mr-1" />
-                Stable
-              </div>
-            </div>
-            <h3 className="text-sm font-medium text-gray-600 mb-1">
-              Quản trị viên
-            </h3>
-            <p className="text-3xl font-bold text-gray-900">
-              {users.filter((u) => u.role === "admin").length}
-            </p>
-            <div className="mt-2 text-xs text-gray-500">Có quyền admin</div>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden hover:shadow-xl transition-all duration-300">
-          <div className="p-6">
-            <div className="flex items-center justify-between mb-4">
               <div className="p-3 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl">
                 <UserPlus className="h-6 w-6 text-white" />
               </div>
@@ -296,7 +277,6 @@ const UsersPage: React.FC = () => {
             onChange={(e) => setRoleFilter(e.target.value)}
             className="px-4 py-2.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all min-w-[140px]">
             <option value="">Tất cả vai trò</option>
-            <option value="admin">Admin</option>
             <option value="staff">Staff</option>
             <option value="user">User</option>
           </select>

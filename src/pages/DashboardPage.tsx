@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import {
   Users,
   UserCheck,
-  UserCog,
   UserPlus,
   Wallet,
   Target,
@@ -19,7 +18,6 @@ import {
   Clock,
   ArrowUpRight,
   RefreshCw,
-  Eye,
   DollarSign,
   Zap,
   Package,
@@ -196,27 +194,6 @@ const DashboardPage: React.FC = () => {
             <div className="mt-2 text-xs text-gray-500">
               Đang sử dụng hệ thống
             </div>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden hover:shadow-xl transition-all duration-300">
-          <div className="p-6">
-            <div className="flex items-center justify-between mb-4">
-              <div className="p-3 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl">
-                <UserCog className="h-6 w-6 text-white" />
-              </div>
-              <div className="flex items-center text-gray-600 text-sm font-medium">
-                <Eye className="h-4 w-4 mr-1" />
-                Stable
-              </div>
-            </div>
-            <h3 className="text-sm font-medium text-gray-600 mb-1">
-              Quản trị viên
-            </h3>
-            <p className="text-3xl font-bold text-gray-900">
-              {formatNumber(metrics.totals.adminUsers)}
-            </p>
-            <div className="mt-2 text-xs text-gray-500">Có quyền quản trị</div>
           </div>
         </div>
 
