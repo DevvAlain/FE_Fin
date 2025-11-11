@@ -41,13 +41,16 @@ const HeroSection: React.FC = () => {
 
               {/* CTA Buttons */}
               <div className="flex flex-col sm:flex-row gap-4 mb-8">
-                <motion.button
+                <motion.a
+                  href="https://drive.google.com/uc?export=download&id=135r8MHvxiPfJS8JRyLonboTSdUyNcPgA"
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="bg-blue-600 text-white px-8 py-4 rounded-xl font-semibold text-lg flex items-center justify-center hover:bg-blue-700 transition-all duration-200 shadow-lg hover:shadow-xl"
                   whileHover={{ scale: 1.05, y: -2 }}
                   whileTap={{ scale: 0.95 }}>
                   Tải App FinWise
                   <ArrowRight className="ml-2 h-5 w-5" />
-                </motion.button>
+                </motion.a>
 
                 <motion.button
                   className="border-2 border-gray-300 text-gray-700 px-8 py-4 rounded-xl font-semibold text-lg flex items-center justify-center hover:border-gray-400 hover:bg-gray-50 transition-all duration-200"

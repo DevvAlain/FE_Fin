@@ -19,6 +19,11 @@ const Footer: React.FC = () => {
       { name: "Tính năng", href: "#features" },
       { name: "AI Insight", href: "#ai-insight" },
       { name: "Bảng giá", href: "#pricing" },
+      {
+        name: "Tải App Android (APK)",
+        href: "https://drive.google.com/uc?export=download&id=135r8MHvxiPfJS8JRyLonboTSdUyNcPgA",
+        external: true,
+      },
       { name: "API Developers", href: "#" },
       { name: "Tích hợp ngân hàng", href: "#" },
     ],
@@ -147,6 +152,9 @@ const Footer: React.FC = () => {
                   <li key={index}>
                     <a
                       href={link.href}
+                      {...(link.external
+                        ? { target: "_blank", rel: "noopener noreferrer" }
+                        : {})}
                       className="text-gray-400 hover:text-white transition-colors duration-200 text-sm">
                       {link.name}
                     </a>
