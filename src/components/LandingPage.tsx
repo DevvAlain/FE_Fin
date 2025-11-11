@@ -5,6 +5,7 @@ import FeaturesSection from "./sections/FeaturesSection";
 import AIInsightSection from "./sections/AIInsightSection";
 import PricingSection from "./sections/PricingSection";
 import TestimonialsSection from "./sections/TestimonialsSection";
+import DownloadSection from "./sections/DownloadSection";
 import Footer from "./Footer";
 
 const LandingPage: React.FC = () => {
@@ -59,6 +60,9 @@ const LandingPage: React.FC = () => {
 
         {/* Testimonials Section - Social proof and credibility */}
         <TestimonialsSection />
+
+        {/* Download Section - Mobile app download CTA */}
+        <DownloadSection />
       </main>
 
       {/* Footer */}
