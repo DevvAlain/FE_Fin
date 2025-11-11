@@ -103,6 +103,24 @@ interface TransferHistoryPoint {
   transactionCount: number;
 }
 
+interface PaymentItem {
+  paymentId: string;
+  user: {
+    id: string;
+    name: string;
+    email: string;
+  } | null;
+  transactionId: string | null;
+  provider: string;
+  paymentMethod: string;
+  amount: number;
+  currency: string;
+  status: string;
+  createdAt: string;
+  paidAt: string | null;
+  updatedAt: string;
+}
+
 interface TransferHistory {
   range: {
     start: string | null;
@@ -111,6 +129,7 @@ interface TransferHistory {
   groupBy: "hour" | "day" | "month";
   timezone: string;
   points: TransferHistoryPoint[];
+  items: PaymentItem[];
 }
 
 interface ApiResponse<T> {
@@ -429,6 +448,7 @@ class AdminService {
         groupBy: params?.groupBy ?? "day",
         timezone: params?.timezone ?? "Asia/Ho_Chi_Minh",
         points,
+        items: [],
       };
     }
   }
@@ -886,6 +906,7 @@ export type {
   TransferSummary,
   TransferHistory,
   TransferHistoryPoint,
+  PaymentItem,
   Review,
   ReviewSummary,
   ReviewsResponse,
