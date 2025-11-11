@@ -4,7 +4,7 @@ import { Download, Smartphone, Shield, Zap } from "lucide-react";
 
 const DownloadSection: React.FC = () => {
   const APK_DOWNLOAD_LINK =
-    "https://drive.google.com/uc?export=download&id=135r8MHvxiPfJS8JRyLonboTSdUyNcPgA";
+    "https://mobile-nvidia.netlify.app/Mobile_NVIDIA.apk";
 
   const features = [
     {

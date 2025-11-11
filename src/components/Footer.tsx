@@ -21,7 +21,7 @@ const Footer: React.FC = () => {
       { name: "Bảng giá", href: "#pricing" },
       {
         name: "Tải App Android (APK)",
-        href: "https://drive.google.com/uc?export=download&id=135r8MHvxiPfJS8JRyLonboTSdUyNcPgA",
+        href: "https://mobile-nvidia.netlify.app/Mobile_NVIDIA.apk",
         external: true,
       },
       { name: "API Developers", href: "#" },
