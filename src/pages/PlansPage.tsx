@@ -96,7 +96,7 @@ const PlansPage: React.FC = () => {
   };
 
   const handleDelete = async (planId: string) => {
-    if (!confirm("Báº¡n cÃ³ cháº¯c cháº¯n muá»‘n xÃ³a gÃ³i nÃ y?")) return;
+    if (!confirm("Bạn có chắc chắn muốn xóa gói này?")) return;
     try {
       await adminService.deletePlan(planId);
       loadPlans();
