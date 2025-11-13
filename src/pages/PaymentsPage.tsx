@@ -167,28 +167,87 @@ const PaymentsPage: React.FC = () => {
     };
   }, [history]);
 
-  const buildAreaPath = (points: TransferHistoryPoint[]): string => {
-    if (!points.length) return "";
-    const width = 600;
-    const height = 240;
-    const padding = 24;
-    const maxValue = Math.max(...points.map((point) => point.totalRevenue), 1);
+  // Chart rendering helpers (smooth area + axes + tooltip)
+  const CHART_W = 700;
+  const CHART_H = 300;
+  const MARGIN = { top: 12, right: 24, bottom: 40, left: 56 };
 
-    const step = (width - padding * 2) / Math.max(points.length - 1, 1);
-    const path = points
-      .map((point, index) => {
-        const x = padding + index * step;
-        const ratio = point.totalRevenue / maxValue;
-        const y = height - padding - ratio * (height - padding * 2);
-        const command = index === 0 ? `M ${x},${y}` : `L ${x},${y}`;
-        return command;
-      })
-      .join(" ");
+  const innerW = CHART_W - MARGIN.left - MARGIN.right;
+  const innerH = CHART_H - MARGIN.top - MARGIN.bottom;
 
-    const lastX = padding + (points.length - 1) * step;
-    const baseY = height - padding;
-    return `${path} L ${lastX},${baseY} L ${padding},${baseY} Z`;
+  const getX = (index: number, total: number) => {
+    if (total <= 1) return MARGIN.left + innerW / 2;
+    const step = innerW / (total - 1);
+    return MARGIN.left + index * step;
   };
+
+  const getY = (value: number, max: number) => {
+    const v = Math.max(0, Math.min(value, max));
+    const ratio = max === 0 ? 0 : v / max;
+    return MARGIN.top + innerH * (1 - ratio);
+  };
+
+  const buildSmoothLinePath = (
+    pts: TransferHistoryPoint[],
+    max: number
+  ): string => {
+    if (!pts.length) return "";
+    if (pts.length === 1) {
+      const x = getX(0, 1);
+      const y = getY(pts[0].totalRevenue, max);
+      return `M ${x},${y}`;
+    }
+
+    const coords = pts.map((p, i) => ({
+      x: getX(i, pts.length),
+      y: getY(p.totalRevenue, max),
+    }));
+
+    const smoothing = 0.18; // Catmull-Rom like
+    let d = `M ${coords[0].x},${coords[0].y}`;
+    for (let i = 0; i < coords.length - 1; i++) {
+      const p0 = coords[i - 1] ?? coords[i];
+      const p1 = coords[i];
+      const p2 = coords[i + 1];
+      const p3 = coords[i + 2] ?? coords[i + 1];
+
+      const c1x = p1.x + (p2.x - p0.x) * smoothing;
+      const c1y = p1.y + (p2.y - p0.y) * smoothing;
+      const c2x = p2.x - (p3.x - p1.x) * smoothing;
+      const c2y = p2.y - (p3.y - p1.y) * smoothing;
+
+      d += ` C ${c1x},${c1y} ${c2x},${c2y} ${p2.x},${p2.y}`;
+    }
+    return d;
+  };
+
+  const buildSmoothAreaPath = (
+    pts: TransferHistoryPoint[],
+    max: number
+  ): string => {
+    if (!pts.length) return "";
+    const line = buildSmoothLinePath(pts, max);
+    const lastX = getX(Math.max(pts.length - 1, 0), pts.length);
+    const firstX = getX(0, pts.length);
+    const baseY = MARGIN.top + innerH;
+    return `${line} L ${lastX},${baseY} L ${firstX},${baseY} Z`;
+  };
+
+  const [hoverIndex, setHoverIndex] = useState<number | null>(null);
+  const handleMouseMove = (evt: React.MouseEvent<SVGSVGElement>) => {
+    if (!chartData.points.length) return;
+    const bounds = (evt.target as SVGElement)
+      .closest("svg")
+      ?.getBoundingClientRect();
+    if (!bounds) return;
+    const x = evt.clientX - bounds.left - MARGIN.left;
+    const clamped = Math.max(0, Math.min(x, innerW));
+    const index = Math.round(
+      (clamped / innerW) * (chartData.points.length - 1)
+    );
+    setHoverIndex(index);
+  };
+  const handleMouseLeave = () => setHoverIndex(null);
 
   const groupByLabel =
     filters.groupBy === "day"
@@ -387,7 +446,11 @@ const PaymentsPage: React.FC = () => {
               </div>
             ) : (
               <div className="relative">
-                <svg viewBox="0 0 600 240" className="w-full h-60">
+                <svg
+                  viewBox={`0 0 ${CHART_W} ${CHART_H}`}
+                  className="w-full h-72"
+                  onMouseMove={handleMouseMove}
+                  onMouseLeave={handleMouseLeave}>
                   <defs>
                     <linearGradient
                       id="revenueGradient"
@@ -395,48 +458,149 @@ const PaymentsPage: React.FC = () => {
                       x2="0"
                       y1="0"
                       y2="1">
-                      <stop offset="0%" stopColor="#6366f1" stopOpacity="0.4" />
+                      <stop
+                        offset="0%"
+                        stopColor="#5b7cfa"
+                        stopOpacity="0.45"
+                      />
                       <stop offset="100%" stopColor="#22d3ee" stopOpacity="0" />
                     </linearGradient>
+                    <linearGradient id="lineStroke" x1="0" x2="1" y1="0" y2="0">
+                      <stop offset="0%" stopColor="#6366f1" />
+                      <stop offset="100%" stopColor="#22d3ee" />
+                    </linearGradient>
                   </defs>
-                  <path
-                    d={buildAreaPath(chartData.points)}
-                    fill="url(#revenueGradient)"
-                    className="transition-all duration-300 ease-out"
-                  />
-                  {chartData.points.map((point, index) => {
-                    const width = 600;
-                    const height = 240;
-                    const padding = 24;
-                    const step =
-                      (width - padding * 2) /
-                      Math.max(chartData.points.length - 1, 1);
-                    const x = padding + index * step;
-                    const maxValue = Math.max(chartData.maxValue, 1);
-                    const y =
-                      height -
-                      padding -
-                      (point.totalRevenue / maxValue) * (height - padding * 2);
 
+                  {/* Y gridlines */}
+                  {Array.from({ length: 5 }).map((_, i) => {
+                    const y = MARGIN.top + (innerH / 4) * i;
+                    const val = Math.round(chartData.maxValue * (1 - i / 4));
                     return (
-                      <g key={point.period}>
-                        <circle
-                          cx={x}
-                          cy={y}
-                          r={4}
-                          className="fill-indigo-500 stroke-white stroke-2"
+                      <g key={`gy-${i}`}>
+                        <line
+                          x1={MARGIN.left}
+                          x2={MARGIN.left + innerW}
+                          y1={y}
+                          y2={y}
+                          className="stroke-gray-100"
                         />
                         <text
-                          x={x}
-                          y={y - 12}
-                          textAnchor="middle"
-                          className="text-xs fill-gray-600">
-                          {formatCurrency(point.totalRevenue)}
+                          x={MARGIN.left - 8}
+                          y={y + 4}
+                          textAnchor="end"
+                          className="text-[10px] fill-gray-400">
+                          {formatCurrency(val)}
                         </text>
                       </g>
                     );
                   })}
+
+                  {/* X axis ticks */}
+                  {chartData.points.map((p, i) => {
+                    const total = chartData.points.length;
+                    const show =
+                      total <= 8 ||
+                      i === 0 ||
+                      i === Math.floor(total / 2) ||
+                      i === total - 1;
+                    if (!show) return null;
+                    const x = getX(i, total);
+                    return (
+                      <g key={`gx-${p.period}`}>
+                        <line
+                          x1={x}
+                          x2={x}
+                          y1={MARGIN.top}
+                          y2={MARGIN.top + innerH}
+                          className="stroke-gray-50"
+                        />
+                        <text
+                          x={x}
+                          y={MARGIN.top + innerH + 16}
+                          textAnchor="middle"
+                          className="text-[10px] fill-gray-400">
+                          {p.period}
+                        </text>
+                      </g>
+                    );
+                  })}
+
+                  {/* Area fill */}
+                  <path
+                    d={buildSmoothAreaPath(
+                      chartData.points,
+                      chartData.maxValue
+                    )}
+                    fill="url(#revenueGradient)"
+                  />
+                  {/* Line stroke */}
+                  <path
+                    d={buildSmoothLinePath(
+                      chartData.points,
+                      chartData.maxValue
+                    )}
+                    fill="none"
+                    stroke="url(#lineStroke)"
+                    strokeWidth={3}
+                  />
+
+                  {/* Hover marker and tooltip line */}
+                  {hoverIndex !== null && chartData.points[hoverIndex] && (
+                    <g>
+                      <line
+                        x1={getX(hoverIndex, chartData.points.length)}
+                        x2={getX(hoverIndex, chartData.points.length)}
+                        y1={MARGIN.top}
+                        y2={MARGIN.top + innerH}
+                        className="stroke-indigo-200"
+                        strokeDasharray="4 4"
+                      />
+                      <circle
+                        cx={getX(hoverIndex, chartData.points.length)}
+                        cy={getY(
+                          chartData.points[hoverIndex].totalRevenue,
+                          chartData.maxValue
+                        )}
+                        r={5}
+                        className="fill-white stroke-indigo-500"
+                        strokeWidth={2}
+                      />
+                    </g>
+                  )}
                 </svg>
+
+                {/* Tooltip */}
+                {hoverIndex !== null && chartData.points[hoverIndex] && (
+                  <div
+                    className="pointer-events-none absolute -translate-x-1/2 -translate-y-4 rounded-xl bg-white shadow-lg border border-gray-100 px-3 py-2 text-xs"
+                    style={{
+                      left: `${
+                        (getX(hoverIndex, chartData.points.length) / CHART_W) *
+                        100
+                      }%`,
+                      top: `${
+                        (getY(
+                          chartData.points[hoverIndex].totalRevenue,
+                          chartData.maxValue
+                        ) /
+                          CHART_H) *
+                        100
+                      }%`,
+                    }}>
+                    <div className="font-semibold text-gray-900">
+                      {formatCurrency(
+                        chartData.points[hoverIndex].totalRevenue
+                      )}
+                    </div>
+                    <div className="text-gray-500 mt-0.5">
+                      {chartData.points[hoverIndex].period} ·{" "}
+                      {formatNumber(
+                        chartData.points[hoverIndex].transactionCount
+                      )}{" "}
+                      tx
+                    </div>
+                  </div>
+                )}
               </div>
             )}
           </div>
